@@ -2,6 +2,7 @@ from distutils.core import setup
 from setuptools import find_packages
 setup(
     name='cloudscale-distributed-jmeter',
+    namespace_packages=['cloudscale'],
     version='0.1.0',
     author='Simon Ivansek',
     author_email='simon.ivansek@xlab.si',
