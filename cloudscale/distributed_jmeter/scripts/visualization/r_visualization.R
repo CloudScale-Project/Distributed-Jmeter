@@ -2,6 +2,10 @@
 ###########################
 # load required libraries #
 ###########################
+if(!require(ggplot2))
+{
+    install.packages("ggplot2", repos="http://cran.rstudio.com/")
+}
 library(ggplot2)
 library(scales)
 
