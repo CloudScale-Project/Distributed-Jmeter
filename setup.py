@@ -15,7 +15,6 @@ setup(
     include_package_data=True,
     install_requires=[
         "boto==2.36.0",
-        "numpy==1.9.1",
         "python-novaclient==2.21.0",
         "paramiko==1.15.2",
         "pandas==0.15.2"
