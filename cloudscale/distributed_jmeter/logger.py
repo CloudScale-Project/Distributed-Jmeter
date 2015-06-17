@@ -6,4 +6,4 @@ class Logger:
         logging.basicConfig(filename=filename,level=logging.DEBUG)
 
     def log(self, msg, level=logging.DEBUG, append_to_last=False, fin=False):
-        logging.log(level, msg)
+        print msg
