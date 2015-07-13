@@ -1,3 +1,6 @@
 .idea
 bin/config.ini
 *.pyc
+dist/
+build/
+cloudscale_distributed_jmeter.egg-info/
