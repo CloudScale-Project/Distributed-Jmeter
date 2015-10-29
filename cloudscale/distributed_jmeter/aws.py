@@ -48,6 +48,7 @@ class AWS:
         self.num_threads = int(self.cfg.get('SCENARIO', 'num_threads'))
         self.instance_type = self.cfg.get('EC2', 'instance_type')
         self.ami_id = self.cfg.get('EC2', 'ami_id')
+        self.availability_zone = self.cfg.get('AWS', 'availability_zone')
         self.scenario_duration = self.cfg.get('SCENARIO', 'duration_in_minutes')
         self.showcase_aws_access_key = self.cfg.get('SHOWCASE', 'aws_access_key_id')
         self.showcase_aws_secret_key = self.cfg.get('SHOWCASE', 'aws_secret_access_key')
@@ -63,9 +64,11 @@ class AWS:
         self.create_security_groups()
 
     def start(self):
-        ips = []
-        for i in xrange(self.num_jmeter_slaves):
-            instance = self.create_instance("Creating master instance {0} ...".format(i + 1))
+
+        instances = self.create_multiple_instances()
+        ips = [ ]
+        for instance in instances:
+            # instance = self.create_instance("Creating master instance {0} ...".format(i + 1))
             time.sleep(15)
             self.logger.log(instance.ip_address)
             self.setup_master(instance.ip_address)
@@ -82,7 +85,7 @@ class AWS:
         stdout.readlines()
 
         self.logger.log("Transfering jmeter_master.tar.gz ")
-        _, stdout, _ = ssh.exec_command("wget -q -T90 %s -O jmeter.tar.gz" % self.jmeter_url)
+        _, stdout, _ = ssh.exec_command("curl -J -L %s > jmeter.tar.gz" % self.jmeter_url)
         self.wait_for_command(stdout)
 
         self.logger.log("Transfering JMeter scenario ...")
@@ -224,7 +227,7 @@ class AWS:
         slo_output = check("{0}/response-times-over-time.csv".format(resultspath))
         self.logger.log("<br>".join(slo_output).split('\n'))
         self.logger.log("Visualizing....")
-        v = Visualize(self.num_threads, self.scenario_duration, self.r_path,
+        v = Visualize(self.num_threads, int(self.scenario_duration), self.r_path,
                       "{0}/response-times-over-time.csv".format(resultspath),
                       "{0}/autoscalability.log".format(resultspath))
         v.save()
@@ -253,7 +256,10 @@ class AWS:
             is_dst = time.daylight and time.localtime().tm_isdst > 0
             utc_offset = - (time.altzone if is_dst else time.timezone)
             for activity in activites:
-                instance_id = re.search('(i-.*)', activity.description.lower()).group(1)
+                try:
+                    instance_id = re.search('(i-.*)', activity.description.lower()).group(1)
+                except:
+                    pass
 
                 a = {
                     'instance_id': instance_id,
@@ -364,11 +370,27 @@ class AWS:
         self.logger.log(msg)
         res = self.conn.run_instances(self.ami_id, key_name=self.key_name,
                                       instance_type=self.instance_type,
-                                      security_groups=['cs-jmeter', 'ssh', 'flask'])
+                                      #placement=self.availability_zone,
+                                      security_groups=['cs-jmeter', 'ssh'])
         time.sleep(30)
         self.wait_available(res.instances[0])
         instance = self.conn.get_all_instances([res.instances[0].id])[0].instances[0]
         return instance
+
+    def create_multiple_instances(self, msg="creating ec2 instance"):
+        self.logger.log(msg)
+        res = self.conn.run_instances(self.ami_id, key_name=self.key_name,
+                                      instance_type=self.instance_type,
+                                      max_count=self.num_jmeter_slaves,
+                                      min_count=self.num_jmeter_slaves,
+                                      #placement=self.availability_zone,
+                                      security_groups=['cs-jmeter', 'ssh'])
+        time.sleep(30)
+        instances = self.conn.get_all_instances([instance.id for instance in res.instances])[0].instances
+        for instance in instances:
+            self.wait_available(instance)
+
+        return instances
 
     def wait_available(self, instance):
         self.logger.log("waiting for instance to become available")

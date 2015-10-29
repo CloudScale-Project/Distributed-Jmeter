@@ -34,4 +34,4 @@ class Plot:
 
         escaped_r_filepath = r_file_new.replace(" ", "\\ ")
         print escaped_r_filepath
-        subprocess.call(['Rscript', r_file_new])
+        subprocess.call(['/usr/local/bin/Rscript', r_file_new])

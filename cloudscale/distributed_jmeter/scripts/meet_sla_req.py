@@ -55,6 +55,10 @@ def check(file_path):
     output += "%-40s %s %-20s %s %-20s %s %-25s %s %-20s %s %-20s %s %-20s %s %-20s %s %-20s\n" % ("operation", "|", "status", "|", "# all request", "|", "# successfull requests", "|", "% of successfull", "|", "% of operation", "|", "allowed deviation", "|", "actual deviation", "|", "deviation ok?")
     separator = "".join(["-" for _ in xrange(len(output))]) + "\n"
     output += separator
+
+    cummulative_violations = 0
+    cummulative_successful = 0
+    cummulative_all = 0
     for k in urls:
         count_succ = 0
         all = len(urls[k]['times'])
@@ -62,6 +66,9 @@ def check(file_path):
         for time, response_code in urls[k]['times']:
             if int(time) <= max_time[k] and response_code == "200":
                 count_succ += 1
+
+        cummulative_successful += count_succ
+        cummulative_all += all
 
         dist = (all*100.0)/all_requests
         dist_sum = dist_sum + dist
@@ -71,7 +78,9 @@ def check(file_path):
         p = (count_succ*100)/all
         if count_succ >= (all * 90) / 100:
             status = "OK"
-            p = 0
+            # p = 0
+
+        cummulative_violations += p
         actual_deviation = get_actual_deviation(dist, k)
         deviation_ok = is_deviation_ok(dist, allowed_deviation, k)
 
@@ -80,7 +89,7 @@ def check(file_path):
 
     fp.close()
     output += separator
-    output += "# ALL REQUESTS = %s, # UNSUCCESSFULL REQUESTS = %s, PROB SUM = %s\n" % (all_requests, unsuccessfull, dist_sum)
+    output += "# ALL REQUESTS = %s, # UNSUCCESSFULL REQUESTS = %s, PROB SUM = %s, # SLO VIOLATIONS = %s%%\n" % (all_requests, unsuccessfull, dist_sum, (((cummulative_all-cummulative_successful)*100)/cummulative_all))
 
     return output
 
