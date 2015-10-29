@@ -4,3 +4,4 @@ bin/config.ini
 dist/
 build/
 cloudscale_distributed_jmeter.egg-info/
+bin/results
