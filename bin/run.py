@@ -6,6 +6,12 @@ import shutil
 from cloudscale.distributed_jmeter import run_test
 from cloudscale.distributed_jmeter.logger import Logger
 from cloudscale.distributed_jmeter.scripts import meet_sla_req
+import logging
+
+class MyLogger(Logger):
+
+    def log(self, msg, level=logging.DEBUG, append_to_last=False, fin=False):
+        print msg
 
 if __name__ == "__main__":
 
@@ -13,7 +19,7 @@ if __name__ == "__main__":
         infrastructure = sys.argv[1]
         config_path = sys.argv[2]
         scenario_path = sys.argv[3]
-        logger = Logger("distributed_jmeter.log")
+        logger = MyLogger("distributed_jmeter.log")
 
         results_path = run_test.run_test(infrastructure, config_path, scenario_path, "%s/results" % os.path.abspath(os.path.dirname(__file__)), logger)
 
