@@ -12,8 +12,6 @@ class Visualize:
         base_filename = main_file[:-4]
         path = os.path.dirname(main_file)
 
-
-
         self.main_file = main_file
         self.parsed_file = base_filename + ".parsed.csv"
         self.merged_file = base_filename + ".merged.csv"
@@ -103,15 +101,15 @@ def run_single(vus, duration, main_file, autoscaling_file, r_file):
 
 if __name__ == "__main__":
     #
-    path = "/Volumes/Storage/Xlab/cloudscale/measurement-results/Split-tresholds-27.6.2015/"
-    run_multiple(path)
-
-    # PATH = '/Volumes/Storage/Xlab/cloudscale/measurement-results/Split-tresholds-27.6.2015/0b7e5544-b158-4f60-88c3-404881b139c3'
-    # # PATH = '/Volumes/Storage/Xlab/cloudscale/gitlab/distributed-jmeter-standalone/bin/6c346f9c-0aef-44f5-88fe-54c92788ab19'
-    # MAIN_FILE = '%s/response-times-over-time.csv' % PATH
-    # AUTOSCALING_FILE = '%s/autoscalability.log' % PATH
-    # R_FILE = '/Volumes/Storage/Xlab/cloudscale/gitlab/distributed-jmeter-standalone/cloudscale/distributed_jmeter/scripts/visualization/r_visualization.R'
-    # import datetime
-    # start_time = datetime.datetime.now()
-    # run_single(12000, 16, MAIN_FILE, AUTOSCALING_FILE, R_FILE)
-    # print datetime.datetime.now()-start_time
+    # path = "/Volumes/Storage/Xlab/cloudscale/measurement-results/Split-tresholds-27.6.2015/"
+    # run_multiple(path)
+    ID = '27782521-5ef1-45f7-93d9-e6fe89610d4a'
+    PATH = '/Volumes/Storage/Xlab/projects/cloudscale/gitlab/distributed-jmeter-standalone/bin/results/%s/' % ID
+    # PATH = '/Volumes/Storage/Xlab/cloudscale/gitlab/distributed-jmeter-standalone/bin/6c346f9c-0aef-44f5-88fe-54c92788ab19'
+    MAIN_FILE = '%s/response-times-over-time.csv' % PATH
+    AUTOSCALING_FILE = '%s/autoscalability.log' % PATH
+    R_FILE = '/Volumes/Storage/Xlab/projects/cloudscale/gitlab/distributed-jmeter-standalone/cloudscale/distributed_jmeter/scripts/visualization/r_visualization.R'
+    import datetime
+    start_time = datetime.datetime.now()
+    run_single(10000, 120, MAIN_FILE, AUTOSCALING_FILE, R_FILE)
+    print datetime.datetime.now()-start_time

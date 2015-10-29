@@ -1,4 +1,3 @@
-
 ###########################
 # load required libraries #
 ###########################
@@ -18,7 +17,7 @@ if(file.exists(as_f))
 
 mdf<-read.csv(m_f, header=TRUE, row.names=NULL)
 slo_df_non_agg <- read.csv(slo_f_non_aggregated, header=TRUE)
-slo_agg_1second_df <- read.csv(slo_agg_1second, header=TRUE)
+#slo_agg_1second_df <- read.csv(slo_agg_1second, header=TRUE)
 slo_agg_5seconds_df <- read.csv(slo_agg_5seconds, header=TRUE)
 slo_agg_10seconds_df <- read.csv(slo_agg_10seconds, header=TRUE)
 ec2_cpu_df <- read.csv(ec2_file, header=TRUE)
@@ -110,21 +109,21 @@ order_by_date <- function(df, field="date"){
 
 add_scale_x <- function(gg, df){
 	my_breaks <- seq.int(0, scenario_duration_in_min*60, 60)
-	return(gg + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + scale_x_continuous(breaks=my_breaks, labels=format(as.POSIXct(my_breaks, origin="1970-01-01"), format="%M:%S")))
+	return(gg + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + scale_x_continuous(breaks=my_breaks, labels=format(as.POSIXct(my_breaks, origin="1970-01-01 00:00:00"), format="%H:%M:%S")))
 }
 
 
 date2scenario_time <- function(df, field="date")
 {
 	min_d <- as.numeric(min(df[,field]))
-	df$scenario_date <- as.POSIXct(as.numeric(df[,field])-min_d, origin="1970-01-01")
+	df$scenario_date <- as.POSIXct(as.numeric(df[,field])-min_d, origin="1970-01-01 00:00:00")
 	return(df)
 }
 
 date2scenario_time2 <- function(df, field="date")
 {
 	min_d <- as.numeric(min(df[,field]))
-	df$scenario_date <- as.POSIXct(abs(as.numeric(df[,field]-start_date))*60, origin="1970-01-01")
+	df$scenario_date <- as.POSIXct(abs(as.numeric(df[,field]-start_date))*60, origin="1970-01-01 00:00:00")
 	return(df)
 }
 
@@ -215,7 +214,7 @@ slo_df <- transform_date(slo_df)
 mdf <- transform_date(mdf)
 df <- transform_date(df)
 slo_df_non_agg <- transform_date(slo_df_non_agg)
-slo_agg_1second_df <- transform_date(slo_agg_1second_df)
+#slo_agg_1second_df <- transform_date(slo_agg_1second_df)
 slo_agg_5seconds_df <- transform_date(slo_agg_5seconds_df)
 slo_agg_10seconds_df <- transform_date(slo_agg_10seconds_df)
 
@@ -226,7 +225,7 @@ slo_df<-order_by_date(slo_df)
 mdf <- order_by_date(mdf)
 df <- order_by_date(df)
 slo_df_non_agg <- order_by_date(slo_df_non_agg)
-slo_agg_1second_df <- order_by_date(slo_agg_1second_df)
+#slo_agg_1second_df <- order_by_date(slo_agg_1second_df)
 slo_agg_5seconds_df <- order_by_date(slo_agg_5seconds_df)
 slo_agg_10seconds_df <- order_by_date(slo_agg_10seconds_df)
 rds_cpu_df <- order_by_date(rds_cpu_df, "timestamp")
@@ -236,7 +235,7 @@ rds_cpu_df <- order_by_date(rds_cpu_df, "timestamp")
 ################
 slo_df <- cut_scenario(slo_df, 60)
 
-slo_agg_1second_df <- cut_scenario(slo_agg_1second_df, 1)
+#slo_agg_1second_df <- cut_scenario(slo_agg_1second_df, 1)
 
 slo_agg_5seconds_df <- cut_scenario(slo_agg_5seconds_df, 5)
 
@@ -302,7 +301,7 @@ rds_cpu_df$timestamp <- seq.int(0, (nrow(rds_cpu_df)-1)*60, 60)
 ####################################
 slo_df <- date2scenario_time(slo_df)
 
-slo_agg_1second_df <- date2scenario_time(slo_agg_1second_df)
+#slo_agg_1second_df <- date2scenario_time(slo_agg_1second_df)
 
 slo_agg_5seconds_df <- date2scenario_time(slo_agg_5seconds_df)
 
@@ -312,7 +311,7 @@ df <- date2scenario_time(df)
 
 slo_df_non_agg <- date2scenario_time(slo_df_non_agg)
 
-mdf <- date2scenario_time2(mdf)
+mdf <- date2scenario_time(mdf)
 
 # slo_df_non_agg <- normalized_response_time(slo_df_non_agg)
 
@@ -345,6 +344,7 @@ scenario_gg <- ggplot(slo_df, aes(x=as.numeric(scenario_date), y=num_all_request
 	ylab(label="no requests") +
 	xlab(label="Time (minute)")
 
+#slo_df$linear <- seq(0, max(slo_df$vus), length.out=nrow(slo_df))
 slo_gg2 <- ggplot(slo_df, aes(x=as.numeric(scenario_date), y=num)) +
 	geom_bar(stat="identity") +
 	ylab(label="# SLO violations") +
@@ -397,12 +397,14 @@ slo_agg_10seconds_gg <- ggplot(slo_agg_10seconds_df, aes(x=as.numeric(scenario_d
 	ylab(label="no requests") +
 	xlab(label="Time (minute)")
 
+ec2_cpu_avg$linear <- seq(0, 100, length.out=nrow(ec2_cpu_avg))
 ec2_cpu_gg <- ggplot(ec2_cpu_avg, aes(x=as.numeric(timestamp), y=average)) +
 	geom_line() +
 	geom_point() +
 	ylab("CPU utilisation") +
 	xlab("Time (minute)") +
-	geom_text(vjust=2, aes(label=round(as.numeric(average),digits=2)))
+	geom_text(vjust=2, aes(label=round(as.numeric(average),digits=2)))+
+    geom_line(aes(y=linear, colour='red'))
 
 rds_cpu_gg <- ggplot(rds_cpu_df, aes(x=as.numeric(timestamp), y=as.double(average))) +
 	geom_line() +
@@ -416,6 +418,16 @@ rds_cpu_gg <- ggplot(rds_cpu_df, aes(x=as.numeric(timestamp), y=as.double(averag
 ################################
 if(nrow(mdf) > 0)
 {
+	rate <- num_threads/scenario_duration_in_min
+	mdf$vus<-round((as.numeric(mdf$scenario_date)/60)*rate)
+	
+    over_provisioning_gg <- ggplot(slo_df, aes(x=as.numeric(scenario_date), y=vus)) +
+		geom_line() +
+		geom_line(data=mdf, aes(x=as.numeric(scenario_date), y=y*50, colour=instance_id), size=2) +
+		geom_step(direction="vh", data=mdf, aes(x=as.numeric(scenario_date), y=vus)) +
+		geom_text(data=mdf, aes(label=vus))
+
+	
 	slo_gg2 <- slo_gg2 + geom_line(data=mdf, aes(x=as.numeric(scenario_date),y=y*50, colour=instance_id), size=2)
 
 	slo_non_agg_gg <- slo_non_agg_gg + geom_line(data=mdf, aes(x=as.numeric(scenario_date),y=y*1000, colour=instance_id), size=2)
@@ -461,17 +473,20 @@ rds_cpu_gg <- add_scale_x(rds_cpu_gg, rds_cpu_df)
 
 rds_cpu_gg <- rds_cpu_gg + scale_y_continuous(breaks=seq.int(0, 100, 10))
 
-max_date <- max(slo_df$date)
+max_date <- max(df$date)
 
-if(exists("as_df"))
+if(exists("over_provisioning_gg"))
 {
-    filtered_as <- as_df[as.numeric(as.POSIXct(as_df$end_time)) < as.numeric(max_date),]
+	over_provisioning_gg <- add_scale_x(over_provisioning_gg, mdf)
 }
 
 ########################
 # add layers to graphs #
 ########################
-
+if(exists("over_provisioning_gg"))
+{
+	over_provisioning_gg <- over_provisioning_gg + xlab(label='Time (minute)') + ylab(label='VUS') + ggtitle('VM provisioning')
+}
 common_1minute_gg <- common_1minute_gg + xlab(label='Time (minute)') + ylab(label='requests') + ggtitle("SLO violations - 1 minute")
 
 common_5seconds_gg <- common_5seconds_gg + xlab(label='Time (minute)') + ylab(label='requests') + ggtitle("SLO violations - 5 second")
@@ -550,3 +565,9 @@ pdf(paste(output_dir, "/10seconds.pdf", sep=""), width=20)
 plot(common_10seconds_gg)
 dev.off()
 
+if(exists("over_provisioning_gg"))
+{
+	pdf(paste(output_dir, "/vm_provisioning.pdf", sep=""), width=20)
+	plot(over_provisioning_gg)
+	dev.off()
+}

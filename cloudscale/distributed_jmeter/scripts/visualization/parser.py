@@ -30,18 +30,24 @@ class Parse:
         instances = []
         launched_instances, terminated_instances = self._read_autoscalability(as_file)
 
-        is_dst = time.daylight and time.localtime().tm_isdst > 0
-        utc_offset = - (time.altzone if is_dst else time.timezone)
+        #is_dst = time.daylight and time.localtime().tm_isdst > 0
+        #utc_offset = - (time.altzone if is_dst else time.timezone)
 
         for instance in launched_instances:
-            instance['start_time'] = instance['end_time'] + datetime.timedelta(hours=utc_offset / 3600)
+            instance['start_time'] = instance['end_time'] # + datetime.timedelta(hours=utc_offset / 3600)
             instance['end_time'] = None
 
-            terminated_instance = self._find_terminated_instance(instance, terminated_instances)
+            terminated_instance, _ = self._find_instance(instance, terminated_instances)
             if terminated_instance:
-                instance['end_time'] = terminated_instance['start_time']
-
-            instances.append(instance)
+                _, i = self._find_instance(instance, instances)
+                if i is None:
+                    instance['end_time'] = terminated_instance['start_time']
+                    instances.append(instance)
+                else:
+                    instances[i]['end_time'] = terminated_instance['start_time']
+            else:
+                # instance['end_time'] = terminated_instance['start_time']
+                instances.append(instance)
 
         min_date = self.data['date'].min().to_datetime()
         max_date = self.data['date'].max().to_datetime()
@@ -53,11 +59,12 @@ class Parse:
                 instance['end_time'] = max_date
         return instances
 
-    def _find_terminated_instance(self, instance, terminated_instances):
-        for ins in terminated_instances:
+    def _find_instance(self, instance, terminated_instances):
+        for i in xrange(len(terminated_instances)):
+            ins = terminated_instances[i]
             if ins['id'] == instance['id']:
-                return ins
-        return None
+                return ins, i
+        return None, None
 
     def _read_autoscalability(self, as_file):
         launched_instances = []
@@ -240,7 +247,7 @@ class Parse:
 
         scenario_duration_in_sec = duration * 60
         requests_per_second = num_threads / 7
-        num_intervals = scenario_duration_in_sec / seconds
+        num_intervals = int(scenario_duration_in_sec) / seconds
 
         requests_per_interval = requests_per_second * seconds * 1.0
         requests_per_duration = requests_per_interval / num_intervals
@@ -283,23 +290,29 @@ class Parse:
                 i = -5
                 for instance in instances:
                     instance_id = instance['id']
+                    start_date = datetime.datetime(1970, 1, 1)
+                    end_date = datetime.datetime.now()
                     with open(file) as fp:
                         next(fp)  # skip the header
-                        already_got_max_response_time = False
                         for line in fp:
-                            # if already_got_max_response_time is False: # do this only the first time in loop
-                            #     start_time = instance['start_time']
-                            #     end_time = instance['end_time'] if instance.has_key('end_time') and instance['end_time'] < self.data['date'].max().to_datetime() else self.get_end_time(instance_id, instances)
-                            #     max_response_time_to_as_dt = self.data_indexed.between_time(start_time, end_time).max()['response_time']
-                            #     already_got_max_response_time = True
-
                             timestamp, estimated_time, url, response_code, status, attr1, attr2 = line.split(",")
                             dt = datetime.datetime.fromtimestamp(int(timestamp) / 1000.0)
-                            if dt >= instance['start_time'] and dt <= instance['end_time']:
-                                m_fp.write('%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
+
+                            if dt <= instance['start_time'] and dt > start_date:
+                                start_date = dt
+                                start_string = '%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
                                     timestamp, estimated_time, url, response_code, status, attr1, attr2[:-1],
                                     instance_id,
-                                    i))
+                                    i)
+
+                            if dt >= instance['end_time'] and dt < end_date:
+                                end_date = dt
+                                end_string = '%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
+                                    timestamp, estimated_time, url, response_code, status, attr1, attr2[:-1],
+                                    instance_id,
+                                    i)
+                    m_fp.write(start_string)
+                    m_fp.write(end_string)
                     i -= 5
 
     def timestamp_to_datetime_file(self):
