@@ -5,6 +5,13 @@ Distributed JMeter can be deployed on AWS or OpenStack. For more information how
 
 You can read more about CloudScale project on: http://www.cloudscale-project.eu
 
+# Prerequisites
+In order for distributed jmeter to work properly you will need to install R tool for statistical analysis. R is used to plot graphs from measurement results.
+
+For more information on how to install R on your system please refer to [official R project website](https://www.r-project.org/). 
+
+After you successfully installed R you will also need to install ```ggplot2``` library and it's dependencies. For instructions on how to do that please refere to [http://ggplot2.org/](http://ggplot2.org/) site.
+
 ## Configs
 
 Settings in config files are separated into sections for easier understanding.
