@@ -21,28 +21,39 @@ Settings in config files are separated into sections for easier understanding.
 **[SHOWCASE]**
 
 ```autoscalable``` - It's value ```yes``` or ```no``` tells application if showcase is deployed in autoscalable mode. This is important for getting the data from AWS.
+
 ```host``` - The host name where showcase is deployed. Showcase must be deployed on ```/showcase-1-a``` path
+
 ```frontend_instances_id``` - The name of frontend instances of showcase. It is used for getting data from showcase instances.
 
 **[SCENARIO]**
 
 ```num_threads``` - The number of threads that we want to simulate. One JMeter instance can handle 2000 VU.
+
 ```ips``` - IP addresses of instances to deploy JMeter on. Leave empty to not use this setting.
+
 ```jmeter_url``` - URL to JMeter distribution. You can download JMeter and modify it, upload it somewhere and replace existing URL with yours. Otherwise leave as it is.
 
 **[AWS]**
 
 ```region``` - The region name where to deploy application.
+
 ```aws_access_key_id``` - Your AWS access key.
+
 ```aws_secret_access_key``` - Your AWS secret key.
+
 ```availability_zones``` - Availability zones for region.
 
 **[EC2]**
 
 ```instance_type``` - EC2 instance type for distributed JMeter
+
 ```remote_user``` - Virtual Machine user name for SSH access
+
 ```ami_id``` - Amazon Machine Image ID to provision VM from.
+
 ```key_name``` - Only the name of SSH key for connecting to VM.
+
 ```key_pair``` - Path to SSH key for connecting to VM. It is auto-generated.
 
 **[RDS]**
@@ -54,24 +65,35 @@ Settings in config files are separated into sections for easier understanding.
 **[SHOWCASE]**
 
 ```host``` - The host name where showcase is deployed. Showcase must be deployed on ```/showcase-1-a``` path
+
 ```frontend_instances_id``` - The name of frontend instances of showcase. It is used for getting data from showcase instances.
 
 **[SCENARIO]**
 
 ```num_threads``` - The number of threads that we want to simulate. One JMeter instance can handle 2000 VU.
+
 ```instance_names``` - Name of instances on OpenStack to deploy distributed JMeter on.
+
 ```jmeter_url``` - URL to JMeter distribution. You can download JMeter and modify it, upload it somewhere and replace existing URL with yours. Otherwise leave as it is.
 
 **[OPENSTACK]**
 
 ```user``` - User for authentication to OpenStack.
+
 ```pwd``` - Password for user for authentication to OpenStack.
+
 ```tenant``` - Tenant name.
+
 ```url``` - URL to your OpenStack authentication.
+
 ```image``` - Image name to use for VM.
+
 ```instance_type``` - Flavor name to use with VM.
+
 ```key_name``` - The name of SSH key on OpenStack.
+
 ```key_pair_path``` - Path to SSH key.
+
 ```remote_user``` - Username to use for SSH on VM.
 
 ## Installation
