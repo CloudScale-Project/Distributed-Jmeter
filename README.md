@@ -104,7 +104,7 @@ from ```bin/``` directory.
 To run distributed JMeter on OpenStack edit ```bin/config.openstack.ini``` file and run:
 
 ```
-$ python run.py openstack config.openstack.ini scenarios/cloudscale-max.jmx
+$ python run.py openstack config.openstack.ini ../scenarios/cloudscale-max.jmx
 ```
 
 from ```bin/``` directory.
