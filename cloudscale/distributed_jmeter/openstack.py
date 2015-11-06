@@ -1,6 +1,9 @@
 import time
+import datetime
 
 import novaclient.v2 as novaclient
+import requests
+import json
 
 from cloudscale.distributed_jmeter.aws import AWS
 
@@ -23,6 +26,11 @@ class OpenStack(AWS):
         self.ips = self.cfg.get('SCENARIO', 'instance_names')
         self.image = self.cfg.get('OPENSTACK', 'image')
         self.flavor = self.cfg.get('OPENSTACK', 'instance_type')
+        self.frontend_instances_identifier = None
+        self.rds_identifiers = None
+        self.is_autoscalable = False
+        self.scenario_duration = self.cfg.get('SCENARIO', 'duration_in_minutes')
+        self.num_threads = int(self.cfg.get('SCENARIO', 'num_threads'))
         self.nc = novaclient.Client(
             self.cfg.get('OPENSTACK', 'user'),
             self.cfg.get('OPENSTACK', 'pwd'),
@@ -96,8 +104,9 @@ class OpenStack(AWS):
     def add_floating_ip(self, server_id):
 
         server = self.nc.servers.get(server_id)
-        if len(server._info['addresses']['distributed_jmeter']) > 1:
-            return server._info['addresses']['distributed_jmeter'][1]['addr']
+        # tenant = self.cfg.get('OPENSTACK', 'tenant')
+        # if len(server._info['addresses'][tenant]) > 1:
+        #     return server._info['addresses'][tenant][1]['addr']
 
         unallocated_floating_ips = self.nc.floating_ips.findall(fixed_ip=None)
         if len(unallocated_floating_ips) < 1:
@@ -111,9 +120,51 @@ class OpenStack(AWS):
         server.add_floating_ip(floating_ip)
         return floating_ip.ip
 
+    def get_instances_by_tag(self, tag, value):
+        return []
+
     def terminate_instances(self, ips):
         #for server_id in self.server_ids:
         #    for server in self.nc.servers.list():
         #        if server.id == server_id:
         #            server.delete()
         return
+
+    def get_cloudwatch_ec2_data(self, start_time, end_time, instance_ids):
+        r = requests.get('http://10.10.43.51/ganglia/graph.php?r=hour&title=cloudscale&vl=&x=&n=&hreg[]=cloudscale-sc&mreg[]=cpu_user&gtype=line&glegend=show&aggregate=1&embed=1&_=1446550633887&json=1')
+        response_data = []
+        if r.status_code == 200:
+            data = json.loads(r.content)
+            for instance in data:
+                instance_name = instance['metric_name']
+                response_data.append({
+                            'instance_id': instance_name,
+                            'data': self._get_datapoints(instance['datapoints'], start_time, end_time)
+                        })
+        return response_data
+
+    def _get_datapoints(self, datapoints, start_time, end_time):
+        data_cpu = []
+        duration = int((end_time - start_time).total_seconds()/60)
+        per_minutes = [[] for _ in xrange(duration+1)]
+        for d in datapoints:
+            timestamp = datetime.datetime.utcfromtimestamp(d[1])
+            if timestamp >= start_time and timestamp <= end_time:
+                minute = int((timestamp - start_time).total_seconds()/60)
+                per_minutes[minute].append(d[0])
+
+        i = 1
+        for a in per_minutes:
+            sum = 0
+            for b in a:
+                sum += b
+            avg = sum/len(a)
+            timestamp = datetime.datetime.fromtimestamp(0) + datetime.timedelta(minutes=i)
+
+            data_cpu.append({'Timestamp': timestamp, 'Average': avg})
+            i+=1
+
+        return data_cpu
+
+    def get_cloudwatch_rds_data(self, start_time, end_time, instance_ids):
+        return []

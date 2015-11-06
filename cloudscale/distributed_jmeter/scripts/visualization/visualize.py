@@ -103,7 +103,7 @@ if __name__ == "__main__":
     #
     # path = "/Volumes/Storage/Xlab/cloudscale/measurement-results/Split-tresholds-27.6.2015/"
     # run_multiple(path)
-    ID = '27782521-5ef1-45f7-93d9-e6fe89610d4a'
+    ID = '8c9db346-a4be-4b6a-882d-7599a2b4d7e7'
     PATH = '/Volumes/Storage/Xlab/projects/cloudscale/gitlab/distributed-jmeter-standalone/bin/results/%s/' % ID
     # PATH = '/Volumes/Storage/Xlab/cloudscale/gitlab/distributed-jmeter-standalone/bin/6c346f9c-0aef-44f5-88fe-54c92788ab19'
     MAIN_FILE = '%s/response-times-over-time.csv' % PATH
@@ -111,5 +111,5 @@ if __name__ == "__main__":
     R_FILE = '/Volumes/Storage/Xlab/projects/cloudscale/gitlab/distributed-jmeter-standalone/cloudscale/distributed_jmeter/scripts/visualization/r_visualization.R'
     import datetime
     start_time = datetime.datetime.now()
-    run_single(10000, 120, MAIN_FILE, AUTOSCALING_FILE, R_FILE)
+    run_single(1400, 16, MAIN_FILE, AUTOSCALING_FILE, R_FILE)
     print datetime.datetime.now()-start_time

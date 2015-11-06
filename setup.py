@@ -6,6 +6,7 @@ setup(
     author='Simon Ivansek',
     author_email='simon.ivansek@xlab.si',
     packages=find_packages(),
+    namespace_packages=['cloudscale'],
     package_data={'cloudscale.distributed_jmeter.scripts.visualization' : ['r_visualization.R']},
     url='http://pypi.python.org/pypi/TowelStuff/',
     license='LICENSE.txt',

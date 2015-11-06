@@ -315,6 +315,13 @@ mdf <- date2scenario_time(mdf)
 
 # slo_df_non_agg <- normalized_response_time(slo_df_non_agg)
 
+##################################
+# Replace NAs with empty strings #
+##################################
+slo_df$when_violates <- ifelse(is.na(slo_df$when_violates), '', slo_df$when_violates)
+slo_agg_5seconds_df$when_violates <- ifelse(is.na(slo_agg_5seconds_df$when_violates), '', slo_agg_5seconds_df$when_violates)
+slo_agg_10seconds_df$when_violates <- ifelse(is.na(slo_agg_10seconds_df$when_violates), '', slo_agg_10seconds_df$when_violates)
+
 #################
 # define graphs #
 #################

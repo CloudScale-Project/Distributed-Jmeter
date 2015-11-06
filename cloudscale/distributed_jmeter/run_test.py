@@ -8,8 +8,8 @@ from cloudscale.distributed_jmeter.helpers import read_config
 from cloudscale.distributed_jmeter.openstack import OpenStack
 
 def run_test(infrastructure, config_path, scenario_path, results_directory, logger):
-    if infrastructure != 'aws':
-        raise Exception("Not supported!")
+    # if infrastructure != 'aws':
+    #     raise Exception("Not supported!")
 
 
     new_scenario_name = uuid.uuid4()

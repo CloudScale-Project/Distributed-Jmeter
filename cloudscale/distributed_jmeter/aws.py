@@ -20,7 +20,7 @@ from cloudscale.distributed_jmeter.scripts.meet_sla_req import check
 from cloudscale.distributed_jmeter.scripts.visualization.visualize import Visualize
 
 
-class AWS:
+class AWS(object):
     def __init__(self, cfg, scenario_path, r_path, output_path, logger, test=False):
         self.cfg = cfg
         self.r_path = r_path

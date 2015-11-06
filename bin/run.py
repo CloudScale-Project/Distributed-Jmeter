@@ -1,17 +1,17 @@
 #!/usr/bin/python
-
+import logging
 import sys
 import os
 import shutil
 from cloudscale.distributed_jmeter import run_test
 from cloudscale.distributed_jmeter.logger import Logger
 from cloudscale.distributed_jmeter.scripts import meet_sla_req
-import logging
 
 class MyLogger(Logger):
 
     def log(self, msg, level=logging.DEBUG, append_to_last=False, fin=False):
         print msg
+
 
 if __name__ == "__main__":
 
