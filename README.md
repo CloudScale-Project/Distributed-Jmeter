@@ -94,7 +94,7 @@ $ pip install -e https://github.com/CloudScale-project/Showcase/distributed-jmet
 To run distributed JMeter on AWS edit ```bin/config.aws.ini``` file and run:
 
 ```
-$ python run.py aws config.aws.ini scenarios/cloudscale-max.jmx
+$ python run.py aws config.aws.ini ../scenarios/cloudscale-max.jmx
 ```
 
 from ```bin/``` directory.
