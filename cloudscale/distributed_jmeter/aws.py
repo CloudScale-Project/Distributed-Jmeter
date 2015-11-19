@@ -320,11 +320,16 @@ class AWS(object):
         ssh = self.ssh_to_instance(ip)
         _, _, stderr = ssh.exec_command(cmd)
 
-        while len(stderr.readlines()) > 0:
+        '''
+        Each 10 seconds check if JMeter finished with measurements
+        '''
+        err = stderr.readlines()
+        while len(err) > 0:
             time.sleep(10)
             ssh.close()
             ssh = self.ssh_to_instance(ip)
             _, _, stderr = ssh.exec_command(cmd)
+            err = stderr.readlines()
 
         self.logger.log("finishing thread " + str(i))
         ssh.close()

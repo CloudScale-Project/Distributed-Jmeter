@@ -78,7 +78,7 @@ class OpenStack(AWS):
         self.logger.log("Waiting for instance to be built . . .")
         status = self.wait_for_instance_status(server_id, u'BUILD', u'ACTIVE')
         if not status:
-            self.logger.log("Can not start instance %s!" % self.instance_name)
+            self.logger.log("Can not start instance %s!" % server_id)
             return False
         return True
 
@@ -144,27 +144,40 @@ class OpenStack(AWS):
         return response_data
 
     def _get_datapoints(self, datapoints, start_time, end_time):
-        data_cpu = []
-        duration = int((end_time - start_time).total_seconds()/60)
-        per_minutes = [[] for _ in xrange(duration+1)]
-        for d in datapoints:
-            timestamp = datetime.datetime.utcfromtimestamp(d[1])
-            if timestamp >= start_time and timestamp <= end_time:
-                minute = int((timestamp - start_time).total_seconds()/60)
-                per_minutes[minute].append(d[0])
+        try:
+            data_cpu = []
+            duration = int((end_time - start_time).total_seconds()/60)
+            per_minutes = [[] for _ in xrange(duration+1)]
+            for d in datapoints:
+                timestamp = datetime.datetime.utcfromtimestamp(d[1])
+                if timestamp >= start_time and timestamp <= end_time:
+                    minute = int((timestamp - start_time).total_seconds()/60)
+                    per_minutes[minute].append(d[0])
 
-        i = 1
-        for a in per_minutes:
-            sum = 0
-            for b in a:
-                sum += b
-            avg = sum/len(a)
-            timestamp = datetime.datetime.fromtimestamp(0) + datetime.timedelta(minutes=i)
+            i = 1
+            for a in per_minutes:
+                sum = 0
+                for b in a:
+                    sum += int(b)
+                avg = sum/len(a)
+                timestamp = datetime.datetime.fromtimestamp(0) + datetime.timedelta(minutes=i)
 
-            data_cpu.append({'Timestamp': timestamp, 'Average': avg})
-            i+=1
+                data_cpu.append({'Timestamp': timestamp, 'Average': avg})
+                i+=1
 
-        return data_cpu
+            return data_cpu
+        except Exception as e:
+            raise e
 
     def get_cloudwatch_rds_data(self, start_time, end_time, instance_ids):
-        return []
+        r = requests.get('http://10.10.43.51/ganglia/graph.php?r=hour&title=cloudscale&vl=&x=&n=&hreg[]=cloudscale-db&mreg[]=cpu_user&gtype=line&glegend=show&aggregate=1&embed=1&_=1446550633887&json=1')
+        response_data = []
+        if r.status_code == 200:
+            data = json.loads(r.content)
+            for instance in data:
+                instance_name = instance['metric_name']
+                response_data.append({
+                            'instance_id': instance_name,
+                            'data': self._get_datapoints(instance['datapoints'], start_time, end_time)
+                        })
+        return response_data
