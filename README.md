@@ -3,6 +3,8 @@ Distributed JMeter application is a load generator application which was develop
  used independently from CloudScale project. For generating the load it uses the opensource software Apache JMeter.
 Distributed JMeter can be deployed on AWS or OpenStack. For more information how to do it, see below.
 
+We developed distributed JMeter to load test the CloudScale showcase application called [CloudStore](https://github.com/CloudScale-Project/CloudStore).
+
 You can read more about CloudScale project on: http://www.cloudscale-project.eu
 
 # Prerequisites
