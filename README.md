@@ -111,7 +111,7 @@ Settings in config files are separated into sections for easier understanding.
 2. Change current directory to unpacked or checked out ```distributed-jmeter``` directory
   
   ```
-  $ cd distributed-jmeter/
+  $ cd Distributed-jmeter-master/
   ```
   
 3. Create and activate new virtual environment:
