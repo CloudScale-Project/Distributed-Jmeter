@@ -8,6 +8,13 @@ We developed distributed JMeter to load test the CloudScale showcase application
 You can read more about CloudScale project on: http://www.cloudscale-project.eu
 
 # Prerequisites
+
+1. Python 2.7
+2. ```pip``` installed
+3. ```virtualenv``` installed
+4. R statistical tool installed
+5. ```ggplot2``` library installed in R
+
 In order for distributed jmeter to work properly you will need to install R tool for statistical analysis. R is used to plot graphs from measurement results.
 
 For more information on how to install R on your system please refer to [official R project website](https://www.r-project.org/). 
@@ -100,18 +107,25 @@ Settings in config files are separated into sections for easier understanding.
 
 ## Installation
 
-Before you can use distributed JMeter scripts you need to install them. You can do this by downloading the ZIP archive and then run:
+1. Download ZIP distribution of ```distributed-jmeter``` scripts or checkout this Git repository.
+2. Change current directory to unpacked or checked out ```distributed-jmeter``` directory
+  
+  ```
+  $ cd distributed-jmeter/
+  ```
+  
+3. Create and activate new virtual environment:
 
-```
-$ python setup.py install 
-```
+  ```
+  $ virtualenv distributed-jmeter-env && source distributed-jmeter-env/bin/activate
+  ```
 
-You can also install the scripts using ```pip``` tool:
-
-```
-$ pip install -e https://github.com/CloudScale-project/Showcase/distributed-jmeter/zipball/distributed-jmeter
-```
-
+4. Install requirements with ```pip```:
+   
+  ```
+  $ pip install -r requirements.txt
+  ```
+  
 ## Usage
 
 ### Amazon Web Services
